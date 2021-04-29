@@ -19,8 +19,6 @@ $ python3 -m pip install -r requirements.txt
 
 ### Run examples
 
-Run conversation voiceflow example:
-
 ```
 $ python3 main.py
 ```
