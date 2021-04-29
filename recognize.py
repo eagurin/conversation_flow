@@ -71,7 +71,8 @@ class Recognize():
             tmp.append(word1)
             word = word1 + ' ' + word2
             self.search_city_(word)
-        tmp.append(utterance.pop(0).title())
+        if utterance:
+            tmp.append(utterance[0].title())
         for word in tmp:
             self.search_city_(word)
 

@@ -1,11 +1,14 @@
 import os
-import re
+import sys
 
+from dotenv import load_dotenv
 from sqlalchemy import (Column, Float, ForeignKey, Integer, String,
                         create_engine)
 from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 
+sys.path.append("..")
+load_dotenv()
 
 config = dict(
     drivername=os.environ.get("DB_DRIVER"),
@@ -18,7 +21,11 @@ config = dict(
 )
 
 url = URL(**config)
-engine = create_engine(url, echo=False)
+for item in url:
+    if not item:
+        engine = create_engine('sqlite://', echo=False)
+    # else:
+    #     engine = create_engine(url, echo=False)
 Base = declarative_base()
 
 Session = sessionmaker()
