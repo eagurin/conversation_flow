@@ -1,7 +1,6 @@
 # Conversation VoiceFlow Python
 
 You will need Python >= 3.5 to run this code.
-To work correctly all scripts should be run from this directory (`voicekit-examples/python`).
 
 ## Usage
 
