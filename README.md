@@ -17,6 +17,39 @@ $ cd conversation_flow
 $ python3 -m pip install -r requirements.txt
 ```
 
+### To configure environment
+
+Add a `.env` in the root directory of your project:
+
+```
+.
+├── .env
+└── foo.py
+```
+
+The syntax of `.env` files supported by python-dotenv is similar to that of Bash:
+
+```bash
+# Tinkoff VoiceKit (STT and TTS)
+API_KEY=PYeyYJ7r34AeKsO+gHQSzvX2x90AcRk29XVqdz/cm3M=
+SECRET_KEY=BgUgG6oz2IrFQwxJ4Bm88r+QCoud7PBiKD8ARscmqn0=
+
+# SQL DataBase
+DB_DRIVER=mysql+pymysql
+DB_USERNAME=user_name
+DB_PASSWORD=user_password
+DB_HOST=database_host
+DB_PORT=3306
+DB_NAME=database_name
+
+```
+
+You will probably want to add `.env` to your `.gitignore`, especially if it contains
+secrets like a password.
+
+See the section "File format" below for more information about what you can write in a
+`.env` file.
+
 ### Run examples
 
 ```
