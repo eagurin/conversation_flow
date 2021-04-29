@@ -1,14 +1,18 @@
 import os
 import sys
+from typing import final
 
 from dotenv import load_dotenv
-from sqlalchemy import (Column, Float, ForeignKey, Integer, String,
-                        create_engine)
+from sqlalchemy import Column, Float, ForeignKey, Integer, String
+from sqlalchemy import create_engine
 from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 
 sys.path.append("..")
 load_dotenv()
+
+Base = declarative_base()
+Session = sessionmaker()
 
 config = dict(
     drivername=os.environ.get("DB_DRIVER"),
@@ -20,17 +24,14 @@ config = dict(
     query={'charset': 'utf8mb4'}
 )
 
-url = URL(**config)
-for item in url:
-    if not item:
-        engine = create_engine('sqlite://', echo=False)
-    # else:
-    #     engine = create_engine(url, echo=False)
-Base = declarative_base()
-
-Session = sessionmaker()
-Session.configure(bind=engine)
-session = Session()
+try:
+    url = URL(**config)
+    engine = create_engine(url, echo=False)
+except:
+    engine = create_engine('sqlite://', echo=False)
+finally:
+    Session.configure(bind=engine)
+    session = Session()
 
 
 class Order(Base):

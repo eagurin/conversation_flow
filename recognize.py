@@ -11,7 +11,7 @@ class Recognize():
         self.entities_ptrn = entity_ptrn
         self.intents_ptrn = intent_ptrn
         self.name_ptrn = name_ptrn
-        self.city_ptrn = city_ptrn
+        self.city_ptrn = city_ptrn.replace('-', ' ')
         self.product_ptrn = product_ptrn
         self.context_words = context_words
         self.entities = []
@@ -70,17 +70,17 @@ class Recognize():
             word2 = utterance[0].title()
             tmp.append(word1)
             word = word1 + ' ' + word2
-            self.search_city_(word)
+            if re.findall(self.city_ptrn, word):
+                self.city = word
+                print_("\nCity", self.city)
+                return
         if utterance:
             tmp.append(utterance[0].title())
         for word in tmp:
-            self.search_city_(word)
-
-    def search_city_(self, word):
-        if re.findall(self.city_ptrn, word):
-            self.city = word
-            print_("\nCity", self.city)
-            return
+            if re.findall(self.city_ptrn, word):
+                self.city = word
+                print_("\nCity", self.city)
+                return
 
     def search_digit(self):
         self.digit = []
