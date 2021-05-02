@@ -23,9 +23,9 @@ config = dict(
     database=os.environ.get("DB_NAME"),
     query={'charset': 'utf8mb4'}
 )
+url = URL(**config)
 
 try:
-    url = URL(**config)
     engine = create_engine(url, echo=False)
 except:
     engine = create_engine('sqlite://', echo=False)

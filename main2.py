@@ -31,7 +31,7 @@ class Main(ABC):
             self.request()
 
     def navigation(self):
-        if self.entity('delivery') or self.intent('checkout') or self.intent('order'):
+        if self.entity('delivery'):
             self.transition_to(Delivery())
             self.request()
 
@@ -103,38 +103,41 @@ class Hello(State, Main):
 
 
 class Delivery(State, Main):
-
     def handle(self) -> None:
-        if self.entity('post'):
-            self.push('<s>Да, мы отправляем заказы до почтовоых отделений Почты России, или пунктов самовывоза СДЭКа и Bo0xberry.</s>')
-        elif self.entity('courier'):
-            self.push('<s>Да, мы отправляем заказы курьерами ЕЭМ0С, СДЭКом и Bo0xberry.</s> ')
-        elif self.entity('method'):
-            self.push('<s>Мы отправляем заказы Почтой России, СДЭКом и Bo0xberry.</s>')
-        if self.entity('when') or self.entity('cost'):
-            self.push(f'<s>Расчитать {self.delivery_question()} вы можете на нашем сайте фьюжен ме0зо точка ру.</s>')
-        self.say_and_listen('<break time="250ms"/>', 'tail')
+        self.main()
         self.menu()
         self.request()
 
-    def delivery_question(self):
-        phrase = []
-        if self.entity('when'):
-            when = 'сроки доставки, '
-            if self.r.city:
-                when += 'в город ' + self.r.city + ', '
-            phrase.append(when)
-        if self.entity('cost'):
-            cost = 'стоимость отправления, '
-            if self.entity('courier', 'post'):
-                tmp = []
-                if self.entity('post'):
-                    tmp.append('до пункта самовывоза, ')
-                if self.entity('courier'):
-                    tmp.append('курьером, ')
-                cost += "или ".join(tmp)
-            phrase.append(cost)
-        return ", а так же ".join(phrase)
+    def main(self):
+
+        if self.entity('method'):
+            self.push('<s>Мы отправляем заказы Почтой России, СДЭКом, и Boxbe0rry.</s>')
+
+        if self.entity('when') or self.entity('cost'):
+            phrase = ''
+
+            if self.entity('cost'):
+                cost = []
+                cost += 'стоимость отправления заказа '
+                if self.entity('courier', 'post'):
+                    if self.entity('post'):
+                        cost.append('до пункта самовывоза ')
+                    if self.entity('courier'):
+                        cost.append('курьером ')
+                else:
+                    cost.append(', удобным для вас способом ')
+                phrase += "или ".join(cost)
+
+            if self.entity('when'):
+                when = ''
+                when += 'ориентировочное время доставки, '
+                if self.r.city:
+                    when += 'в город ' + self.r.city
+                phrase += when
+
+            self.push('<s>Расчитать ', phrase, 'вы можете на нашем сайте фьюжен ме0зо точка ру.</s>')
+
+        self.push('tail')
 
 
 class Payments(State, Main):
@@ -241,11 +244,11 @@ class Order(State, Main):
 
 
 def main():
-    user = models.Customer()
-    phone = '+79103944220'
+    phone = '9103944220'
     try:
-        user = models.session.query(models.Customer).filter(models.Customer.telephone==phone).first()
+        user = models.session.query(models.Customer).filter(models.Customer.telephone==phone).one()
     except:
+        user = models.Customer()
         print('Ошибка запроса')
     invoker = Invoker()
     recognize = Recognize(entity_ptrn, intent_ptrn, name_ptrn, city_ptrn, product_ptrn, context_words)
