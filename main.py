@@ -17,19 +17,6 @@ class Main(ABC):
         self.navigation()
         self.default()
 
-    def question(self):
-        if (self.entity('difference') or self.entity('question')) and (self.product('f-hair') and self.product('f-hair man')):
-            self.push('Ф хаир больше направлен на улучшение трофики!')
-            self.push('В его составе есть железо, цинк, магний, которого часто не хватает у женщин при анемии.')
-            self.push('У мужчин такое тоже бывает.')
-            self.push('Ф хаир мэн также улучшает трофику!, но в его составе аналоги миноксиди0ла.')
-            self.push('Они изменяют чувствительность гормонов андрогены на фолли0кул.')
-            self.push('Поэтому, прежде надо выяснить причину выпадения воло0с.')
-            self.push('Бывает, что женщинам подойдёт Ф хаир мэн, а мужчинам просто Ф хаир.')
-            self.say_and_listen('after_success')
-            self.menu()
-            self.request()
-
     def navigation(self):
         if self.entity('delivery') or self.intent('checkout') or self.intent('order'):
             self.transition_to(Delivery())
@@ -44,29 +31,6 @@ class Main(ABC):
             self.request()
 
     def default(self):
-        if self.entity('wait'):
-            self.say('good', 'wait')
-            self.r.entities = []
-            while not self.entity('oleg'):
-                self.listen()
-            self.say_and_listen('comeback', 'tail')
-            self.menu()
-            self.request()
-
-        if self.entity('busy', 'callback', 'caller'):
-            self.result('Перезвонить позже')
-            self.push('good', 'hangup_recall')
-            self.hangup()
-            self.menu()
-            self.request()
-
-        if self.entity('wrong', 'different') and self.entity('phone', 'caller'):
-            self.result('Ошиблись номером')
-            self.say('hangup_dont_disturb', 'good_buy')
-            self.hangup()
-            self.menu()
-            self.request()
-
         if self.entity('repeat'):
             self.say_and_listen(self.phrase._last_phrase)
             self.menu()
@@ -77,8 +41,40 @@ class Main(ABC):
             self.menu()
             self.request()
 
+        if self.entity('wait'):
+            self.say('good', 'wait')
+            self.r.entities = []
+            while not self.entity('oleg'):
+                self.listen()
+            self.say('comeback')
+            self.menu()
+            self.request()
+
+        if self.entity('busy', 'callback', 'caller'):
+            self.result('Перезвонить позже')
+            self.push('good', 'hangup_recall')
+            self.hangup()
+
+        if self.entity('wrong', 'different') and self.entity('phone', 'caller'):
+            self.result('Ошиблись номером')
+            self.say('hangup_dont_disturb', 'good_buy')
+            self.hangup()
+
         if self.entity('good_buy'):
             self.hangup()
+
+    def question(self):
+        if (self.entity('difference') or self.entity('question')) and (self.product('f-hair') and self.product('f-hair man')):
+            self.push('Ф хаир больше направлен на улучшение трофики!')
+            self.push('В его составе есть железо, цинк, магний, которого часто не хватает у женщин при анемии.')
+            self.push('У мужчин такое тоже бывает.')
+            self.push('Ф хаир мэн также улучшает трофику!, но в его составе аналоги миноксиди0ла.')
+            self.push('Они изменяют чувствительность гормонов андрогены на фолли0кул.')
+            self.push('Поэтому, прежде надо выяснить причину выпадения воло0с.')
+            self.push('Бывает, что женщинам подойдёт Ф хаир мэн, а мужчинам просто Ф хаир.')
+            self.say_and_listen('after_success')
+            self.menu()
+            self.request()
 
     def hangup(self):
         self.say('good_buy')
