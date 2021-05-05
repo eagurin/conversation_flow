@@ -70,7 +70,7 @@ class Recognize():
             word2 = utterance[0].title()
             tmp.append(word1)
             word = word1 + ' ' + word2
-            if re.findall(self.city_ptrn, word):
+            if re.fullmatch(self.city_ptrn, word):
                 self.city = word
                 print_("\nCity", self.city)
                 return

@@ -7,6 +7,7 @@ class PromptStack:
     _on_listen = None
     _history = []
     _phrase = ''
+    last = ''
     _ssml = ''
 
     def __init__(self, invoker, recognize, prompts_dict) -> None:
@@ -29,13 +30,13 @@ class PromptStack:
             self.action = prompt_list[randint(0, len(prompt_list)-1)]
 
     def add_in_phrase(self) -> None:
-        self._phrase += str(self.action) + ' <break time="250ms"/>'
+        self._phrase += str(self.action or ' ') + '<break time="250ms"/> '
 
     def say(self, *actions) -> None:
         self.push(*actions)
         self._invoker.set_on_speak(self._phrase)
         self._invoker.do_speak()
-        self._last_phrase = self._phrase
+        self.last = self._phrase
         self._phrase = ''
 
     def listen(self) -> None:
@@ -46,8 +47,8 @@ class PromptStack:
         self.push(*actions)
         self._invoker.set_on_speak(self._phrase)
         self._invoker.do_speak()
-        sleep(0.00001)
+        # sleep(0.00001)
         self._invoker.set_on_listen(self._recognize)
         self._invoker.do_listen()
-        self._last_phrase = self._phrase
+        self.last = self._phrase
         self._phrase = ''

@@ -1,6 +1,5 @@
 import os
 import sys
-from typing import final
 
 from dotenv import load_dotenv
 from sqlalchemy import Column, Float, ForeignKey, Integer, String

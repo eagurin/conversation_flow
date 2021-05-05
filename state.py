@@ -1,25 +1,30 @@
 from __future__ import annotations
 
+import asyncio
 import sys
 from abc import ABC, abstractmethod
 
 
 class Context:
-    _result = None
-    _hangup = None
+    _call_counter = 0
+    _state_counter = 0
 
-    def __init__(self, state, user, invoker, phrase, recognize):
+    def __init__(self, state, menu, user, invoker, phrase, recognize, post):
+        self._menu = menu
         self._user = user
         self._invoker = invoker
         self._recognize = recognize
         self._phrase = phrase
+        self._post = post
+        self.last_state = state
         self.transition_to(state)
 
     def transition_to(self, state: State):
         print("\nState:", type(state).__name__)
         self._state = state
         self._state.user = self._user
-        self._state.r = self._recognize
+        self._state.post = self._post
+        self._state.recognize = self._recognize
         self._state.entity = self._recognize.entity
         self._state.intent = self._recognize.intent
         self._state.product = self._recognize.product
@@ -30,18 +35,39 @@ class Context:
         self._state.say_and_listen = self._phrase.say_and_listen
         self._state.result = self.result
         self._state.request = self.request
+        self._state.hangup = self.hangup
         self._state.transition_to = self.transition_to
         self._state.context = self
 
     def request(self):
-        if self._hangup:
-            print('\nЗвонок завершен.\n')
-            sys.exit()
+        self.counter()
+        self._state.menu()
         self._state.handle()
+        self._phrase.say_and_listen('tail')
+        self.request()
+
+    def request_(self):
+        self._main.handle()
+
+    def hangup(self):
+        print('\nЗвонок завершен.\n')
+        sys.exit()
 
     def result(self, text):
         self._result = text
         print("\nResult:", text)
+
+    def counter(self):
+        self._call_counter += 1
+        self._state_counter += 1
+        if self._state != self.last_state:
+            self._state_counter = 1
+        if self._call_counter > 50:
+            self._phrase.say('Что-то мы с вами заговорились!', 'А время- деньги!!')
+            self.hangup()
+        if self._state_counter > 10:
+            self._phrase.say('Хватит морочить мне голову!')
+            self.hangup()
 
 
 class State(ABC):
@@ -62,12 +88,12 @@ class State(ABC):
         self._data = data
 
     @property
-    def r(self) -> Context:
-        return self._r
+    def recognize(self) -> Context:
+        return self._recognize
 
-    @r.setter
-    def r(self, recognize: Context) -> None:
-        self._r = recognize
+    @recognize.setter
+    def recognize(self, recognize: Context) -> None:
+        self._recognize = recognize
 
     @property
     def phrase(self) -> Context:
