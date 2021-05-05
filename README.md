@@ -30,17 +30,21 @@ Add a `.env` in the root directory of your project:
 The syntax of `.env` files supported by python-dotenv is similar to that of Bash:
 
 ```bash
-# Tinkoff VoiceKit (STT and TTS)
+# Tinkoff VoiceKit(STT and TTS)
 API_KEY=PYeyYJ7r34AeKsO+gHQSzvX2x90AcRk29XVqdz/cm3M=
 SECRET_KEY=BgUgG6oz2IrFQwxJ4Bm88r+QCoud7PBiKD8ARscmqn0=
 
-# SQL DataBase
+# SQL DataBase(OpenCart 2.1.0.1)
 DB_DRIVER=mysql+pymysql
 DB_USERNAME=user_name
 DB_PASSWORD=user_password
 DB_HOST=database_host
 DB_PORT=3306
 DB_NAME=database_name
+
+# Sending Online API(Russian Post)
+POST_API_ACCESS_TOKEN=OO5DSt6rly6lOr1mAsQXTbrsuGdMLadU
+POST_API_LOGIN_PASSWORD=ZS5hLmd1cmluQGdtYWlsLmNvbTpQNTh0YnMydXU=
 
 ```
 
