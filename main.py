@@ -350,12 +350,13 @@ class Hangup(Main):
 
 
 def main(phone):
-    user = models.Customer()
+    user = None
     try:
         user = models.session.query(models.Customer).filter(models.Customer.telephone==phone).first()
     except:
-        user = models.Customer()
         print('Ошибка запроса')
+    if not user:
+        user = models.Customer()
     post = Post()
     invoker = Invoker()
     recognize = Recognize(entity, intent, name, city, product, context_words)
