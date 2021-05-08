@@ -28,6 +28,7 @@ Add a `.env` in the root directory of your project:
 ```
 
 The syntax of `.env` files supported by python-dotenv is similar to that of Bash:
+https://voicekit.tinkoff.ru
 
 ```bash
 # Tinkoff VoiceKit https://voicekit.tinkoff.ru
