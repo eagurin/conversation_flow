@@ -13,24 +13,25 @@ from utils import clear_html, send_sms
 class Menu:
 
     def menu(self) -> None:
-        self.nav()
-        self.default()
-        self.question()
+        self.navigation()
+        self.basic()
+        if self.entity('question'):
+            self.question()
 
-    def nav(self):
-        if self.recognize.entity('delivery') or self.recognize.intent('delivery'):
+    def navigation(self):
+        if self.entity('delivery') or self.intent('delivery'):
             self.context.transition_to(Shipping())
             return
 
-        if self.recognize.intent('payments') or self.recognize.entity('payments'):
+        if self.intent('payments') or self.entity('payments'):
             self.context.transition_to(Payments())
             return
 
-        if self.recognize.intent('order') or self.recognize.entity('order'):
+        if self.intent('order') or self.entity('order'):
             self.context.transition_to(Order())
             return
 
-    def default(self):
+    def basic(self):
         if self.entity('repeat'):
             self.phrase.say_and_listen(self.phrase.last)
             self.context.request()
@@ -60,17 +61,30 @@ class Menu:
             self.context.transition_to(Hangup())
 
     def question(self):
-        if self.entity('question'):
-            if self.entity('difference') and self.product('f-hair') and self.product('f-hair man'):
-                self.phrase.push('Ф хаир больше направлен на улучшение трофики!')
-                self.phrase.push('В его составе есть железо, цинк, магний, которого часто не хватает у женщин при анемии.')
-                self.phrase.push('У мужчин такое тоже бывает.')
-                self.phrase.push('Ф хаир мэн также улучшает трофику!, но в его составе аналоги миноксиди0ла.')
-                self.phrase.push('Они изменяют чувствительность гормонов андрогены на фолли0кул.')
-                self.phrase.push('Поэтому, прежде надо выяснить причину выпадения воло0с.')
-                self.phrase.push('Бывает, что женщинам подойдёт Ф хаир мэн, а мужчинам просто Ф хаир.')
-                self.phrase.say_and_listen('after_success')
-                self.context.request()
+        if self.entity('difference') and self.product('f-hair') and self.product('f-hair man'):
+            self.phrase.push('Ф хаир больше направлен на улучшение трофики!')
+            self.phrase.push('В его составе есть железо, цинк, магний, которого часто не хватает у женщин при анемии.')
+            self.phrase.push('У мужчин такое тоже бывает.')
+            self.phrase.push('Ф хаир мэн также улучшает трофику!, но в его составе аналоги миноксиди0ла.')
+            self.phrase.push('Они изменяют чувствительность гормонов андрогены на фолли0кул.')
+            self.phrase.push('Поэтому, прежде надо выяснить причину выпадения воло0с.')
+            self.phrase.push('Бывает, что женщинам подойдёт Ф хаир мэн, а мужчинам просто Ф хаир.')
+            self.phrase.say_and_listen('after_success')
+            self.context.request()
+
+        if self.entity('post') and self.entity('method'):
+            self.post.method = 'PARCEL_CLASS_1'
+            self.phrase.say_and_listen('Мы отправляем заказы до почтовоых отделений Почты России, или пунктов самовывоза СДЭКа и Bo0xberry.')
+            self.context.request()
+
+        if self.entity('courier') and self.entity('method'):
+            self.post.method = 'EMS'
+            self.phrase.say_and_listen('Мы отправляем заказы курьерами ЕЭМ0С, СДЭКом и Bo0xberry.')
+            self.context.request()
+
+        if self.entity('delivery') and self.entity('method'):
+            self.phrase.say_and_listen('Мы отправляем заказы Почтой России, СДЭКом и Bo0xberry.')
+            self.context.request()
 
 
 class Hello(State, Menu):
@@ -141,24 +155,24 @@ class Shipping(State, Menu):
             day = 'дня'
         elif int(str(self.post.delivery_time)[-1]) in [5, 6, 7, 8, 9, 0]:
             day = 'дней'
-        self.phrase.say_and_listen(f'Срок доставки {self.post.delivery_time} {day}')
+        self.phrase.push(f'Срок доставки {self.post.delivery_time} {day}')
+        self.phrase.say_and_listen('after_success')
         self.post.city = None
         self.post.cost = None
         self.post.delivery_time = None
         self.context.request()
 
-    def question(self):
-        if self.entity('question') and self.entity('method'):
-            if self.entity('post'):
-                self.post.method = 'PARCEL_CLASS_1'
-                self.phrase.say_and_listen('Мы отправляем заказы до почтовоых отделений Почты России, или пунктов самовывоза СДЭКа и Bo0xberry.')
-                self.context.request()
-            if self.entity('courier'):
-                self.post.method = 'EMS'
-                self.phrase.say_and_listen('Мы отправляем заказы курьерами ЕЭМ0С, СДЭКом и Bo0xberry.')
-                self.context.request()
-            self.phrase.say_and_listen('Мы отправляем заказы Почтой России, СДЭКом и Bo0xberry.')
-            self.context.request()
+    # def question(self):
+    #         if self.entity('post') and self.entity('method'):
+    #             self.post.method = 'PARCEL_CLASS_1'
+    #             self.phrase.say_and_listen('Мы отправляем заказы до почтовоых отделений Почты России, или пунктов самовывоза СДЭКа и Bo0xberry.')
+    #             self.context.request()
+    #         if self.entity('courier') and self.entity('method'):
+    #             self.post.method = 'EMS'
+    #             self.phrase.say_and_listen('Мы отправляем заказы курьерами ЕЭМ0С, СДЭКом и Bo0xberry.')
+    #             self.context.request()
+    #         self.phrase.say_and_listen('Мы отправляем заказы Почтой России, СДЭКом и Bo0xberry.')
+    #         self.context.request()
 
 
 class Payments(State, Menu):

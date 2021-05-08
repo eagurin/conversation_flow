@@ -1,21 +1,4 @@
 import re
-import sys
-
-# class Save:
-
-#     def save_form_field(self) -> None:
-#         self.set_name()
-#         self.set_order_id()
-    
-#     def set_name(self):
-#         if user.firstname:
-#             self.name = user.firstname
-#         if recognize.name:
-#             self.name = recognize.name
-
-#     def set_order_id(self):
-#         if recognize.digit:
-#             self.order_id = recognize.digit[0]
 
 
 def clear_html(text):
@@ -34,3 +17,13 @@ def clear(item):
 
 def print_(name, text):
     print(f"{name}:", text) if text else None
+
+
+def add_days(number_day):
+    if number_day == 1:
+        day = 'день'
+    elif int(str(number_day)[-1]) in [2, 3, 4]:
+        day = 'дня'
+    elif int(str(number_day)[-1]) in [5, 6, 7, 8, 9, 0]:
+        day = 'дней'
+    return str(number_day) + ' ' + day
