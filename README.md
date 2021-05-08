@@ -30,7 +30,7 @@ Add a `.env` in the root directory of your project:
 The syntax of `.env` files supported by python-dotenv is similar to that of Bash:
 
 ```bash
-# Tinkoff VoiceKit(STT and TTS)
+# Tinkoff VoiceKit https://voicekit.tinkoff.ru
 API_KEY=PYeyYJ7r34AeKsO+gHQSzvX2x90AcRk29XVqdz/cm3M=
 SECRET_KEY=BgUgG6oz2IrFQwxJ4Bm88r+QCoud7PBiKD8ARscmqn0=
 
