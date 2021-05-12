@@ -2,8 +2,8 @@ import os
 import sys
 
 from dotenv import load_dotenv
-from sqlalchemy import Column, Float, ForeignKey, Integer, String
-from sqlalchemy import create_engine
+from sqlalchemy import (Column, Float, ForeignKey, Integer, String,
+                        create_engine)
 from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 

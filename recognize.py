@@ -4,9 +4,6 @@ from utils import clear, print_
 
 
 class Recognize():
-    """
-    Named Entity and Intent Detector
-    """
     def __init__(self, entity_ptrn, intent_ptrn, name_ptrn, city_ptrn, product_ptrn, context_words):
         self.entities_ptrn = entity_ptrn
         self.intents_ptrn = intent_ptrn
@@ -59,7 +56,6 @@ class Recognize():
             if re.findall(self.name_ptrn, word):
                 self.name = (clear(word)).title()
                 print_("\nName", self.name)
-                return
 
     def search_city(self):
         utterance = clear(self.utterance).split()
@@ -73,14 +69,12 @@ class Recognize():
             if re.fullmatch(self.city_ptrn, word):
                 self.city = word
                 print_("\nCity", self.city)
-                return
         if utterance:
             tmp.append(utterance[0].title())
         for word in tmp:
             if re.findall(self.city_ptrn, word):
                 self.city = word
                 print_("\nCity", self.city)
-                return
 
     def search_digit(self):
         self.digit = []

@@ -14,13 +14,14 @@ class Context:
     _call_counter = 0
     _state_counter = 0
 
-    def __init__(self, state, user, invoker, phrase, recognize, post):
+    def __init__(self, state, user, invoker, phrase, recognize, post, checkout):
         self._user = user
         self._invoker = invoker
         self._recognize = recognize
         self._phrase = phrase
         self._post = post
-        self._last_state = state
+        self._checkout = checkout
+        self.last_state = state
         self.transition_to(state)
 
     def transition_to(self, state):
@@ -44,14 +45,17 @@ class Context:
         self._state.context = self
 
     def request(self):
-        self.request_counter()
-        self.state_counter()
+        self.counter()
         self._state.question()
         self._state.navigation()
         self._state.basic()
         self._state.handle()
         self._phrase.say_and_listen('tail')
         self.request()
+
+    def hangup(self):
+        print('\nЗвонок завершен.\n')
+        sys.exit()
 
     def state_name(self):
         return type(self._state).__name__
@@ -60,27 +64,17 @@ class Context:
         self._result = text
         print("\nResult:", text)
 
-    def hangup(self):
-        print('\nЗвонок завершен.\n')
-        sys.exit()
-
-    def request_counter(self):
+    def counter(self):
         self._call_counter += 1
-        if self._call_counter > 50:
-            self.transition_to(Hangup())
-            self._phrase.push('Хватит морочить мне голову!')
-            self.request()
-
-    def state_counter(self):
-        if self._state != self._last_state:
-            self._last_state = self._state
-            self._state_counter = 0
         self._state_counter += 1
+        if self._state != self.last_state:
+            self._state_counter = 1
+        if self._call_counter > 50:
+            self._phrase.say('Что-то мы с вами заговорились!', 'А время- деньги!!')
+            self.hangup()
         if self._state_counter > 10:
-            self.transition_to(Hangup())
-            self._phrase.push('Что-то мы с вами заговорились!')
-            self._phrase.push('А время- деньги!!')
-            self.request()
+            self._phrase.say('Хватит морочить мне голову!')
+            self.hangup()
 
 
 class Main:
@@ -112,21 +106,20 @@ class Main:
             self.say_and_listen('robot', 'tail')
             self.request()
 
-        if self.entity('busy', 'callback', 'caller'):
-            self.result('Перезвонить позже')
-            self.push('good', 'hangup_recall')
-            self.transition_to(Hangup())
-
         if self.entity('wrong', 'different') and self.entity('phone', 'caller'):
             self.result('Ошиблись номером')
             self.say('hangup_dont_disturb')
+            self.transition_to(Hangup())
+
+        if self.entity('busy', 'callback', 'caller'):
+            self.result('Перезвонить позже')
+            self.push('good', 'hangup_recall')
             self.transition_to(Hangup())
 
         if self.entity('wait'):
             self.say_and_listen('good', 'wait')
             while not self.entity('oleg'):
                 self.listen()
-            self.recognize.name = None
             self.say('comeback')
             self.request()
 
@@ -147,32 +140,37 @@ class Main:
                 self.request()
 
         if self.entity('delivery') and self.entity('question') and self.context.state_name() != 'Shipping':
-            if not self.recognize.city or self.entity('cost'):
-                if self.entity('post'):
-                    self.push('Мы отправляем заказы до отделений Почты России, или пунктов самовывоза СДЭКа и Bo0xberry.')
-                    self.say_and_listen('Вы хотите расчитать стоимость и время доставки?')
-                    if self.entity('yes'):
-                        self.post.set_on_method('PARCEL_CLASS_1')
-                        self.push('good')
-                        self.transition_to(Shipping())
-                        self.request()
+            if self.entity('post'):
+                self.say_and_listen(
+                    'Мы отправляем заказы до отделений Почты России, или пунктов самовывоза СДЭКа и Bo0xberry.',
+                    'Вы хотите расчитать стоимость и время доставки?'
+                )
+                if self.entity('yes'):
+                    self.post.set_on_method('PARCEL_CLASS_1')
+                    self.push('good')
+                    self.transition_to(Shipping())
+                    self.request()
 
-                if self.entity('courier'):
-                    self.push('Мы отправляем заказы курьерами: ЕЭМ0С, СДЭКом и Bo0xberry.')
-                    self.say_and_listen('Вы хотите расчитать стоимость и время доставки?')
-                    if self.entity('yes'):
-                        self.post.set_on_method('EMS')
-                        self.push('good')
-                        self.transition_to(Shipping())
-                        self.request()
+            if self.entity('courier'):
+                self.say_and_listen(
+                    'Мы отправляем заказы курьерами: ЕЭМ0С, СДЭКом и Bo0xberry.',
+                    'Вы хотите расчитать стоимость и время доставки?'
+                )
+                if self.entity('yes'):
+                    self.post.set_on_method('EMS')
+                    self.push('good')
+                    self.transition_to(Shipping())
+                    self.request()
 
-                if self.entity('method'):
-                    self.push('Мы отправляем заказы Почтой России, СДЭКом и Bo0xberry.')
-                    self.say_and_listen('Вы хотите расчитать стоимость и время доставки?')
-                    if self.entity('yes'):
-                        self.push('good')
-                        self.transition_to(Shipping())
-                        self.request()
+            if self.entity('method'):
+                self.say_and_listen(
+                    'Мы отправляем заказы Почтой России, СДЭКом и Bo0xberry.',
+                    'Вы хотите расчитать стоимость и время доставки?'
+                )
+                if self.entity('yes'):
+                    self.push('good')
+                    self.transition_to(Shipping())
+                    self.request()
 
 
 class Hello(Main):
@@ -249,8 +247,13 @@ class Shipping(Main):
     def get_result(self):
         self.push(f'Доставка {self.post.method_text} в город {self.post.city} будет стоить {self.post.cost} рублей!')
         self.push(f'Срок доставки {add_days(self.post.delivery_time)}')
-        self.say_and_listen('after_success')
+        self.say_and_listen('Вы будете делать заказ?')
+        self.context._checkout.set_on_delivery(self.post)
         if self.entity('post') or self.entity('courier'):
+            self.request()
+        if self.entity('yes') or self.intent('checkout', 'order'):
+            # self.result_clear()
+            self.transition_to(Checkout())
             self.request()
 
     def result_clear(self):
@@ -260,6 +263,20 @@ class Shipping(Main):
 class Payments(Main):
     def handle(self) -> None:
         self.push('payments_basic')
+
+
+class Checkout(Main):
+    delivery = None
+    payments = None
+    user = None
+
+    def handle(self) -> None:
+        if not self.delivery:
+            self.transition_to(Shipping())
+            self.request()
+            
+    def set_on_delivery(self, post):
+        self.delivery = post
 
 
 class Order(Main):
@@ -299,8 +316,6 @@ class Order(Main):
     def check_field_name(self):
         if not self.name:
             self.say_and_listen('what_your_name_order')
-            if self.recognize.name:
-                self.user.firstname = self.recognize.name
             self.request()
 
     def request_order(self):
@@ -328,7 +343,7 @@ class Order(Main):
             self.say_and_listen(f'{self.user.firstname}, назовите данные заказа еще раз!')
             self.request()
         elif self.recognize.name == self.order.firstname:
-            self.result_order()
+            return
         if self.user.firstname != self.order.firstname:
             self.push(f'В заказе: {self.order.order_id}, указанно не ваше имя.')
             self.say_and_listen(f'{self.user.firstname}, назовите данные заказа еще раз!')
@@ -363,10 +378,11 @@ def main(phone):
     if not user:
         user = models.Customer()
     post = Post()
+    checkout = Checkout()
     invoker = Invoker()
     recognize = Recognize(entity, intent, name, city, product, context_words)
     phrase = PromptStack(invoker, recognize, prompts_dict)
-    context = Context(Hello(), user, invoker, phrase, recognize, post)
+    context = Context(Hello(), user, invoker, phrase, recognize, post, checkout)
     context.request()
 
 

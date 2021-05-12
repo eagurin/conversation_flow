@@ -1,5 +1,4 @@
 from random import randint
-from time import sleep
 
 
 class PromptStack:
@@ -47,7 +46,6 @@ class PromptStack:
         self.push(*actions)
         self._invoker.set_on_speak(self._phrase)
         self._invoker.do_speak()
-        # sleep(0.00001)
         self._invoker.set_on_listen(self._recognize)
         self._invoker.do_listen()
         self.last = self._phrase

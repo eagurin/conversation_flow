@@ -105,9 +105,9 @@ class Post:
             self.recognize_address = ''
             # self.method = None
             # self.city = None
-            self.street = None
-            self.house = None
-            self.index = None
+            # self.street = None
+            # self.house = None
+            # self.index = None
         except:
             raise
 
